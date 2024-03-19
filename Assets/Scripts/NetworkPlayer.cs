@@ -11,7 +11,6 @@ public class NetworkPlayer : MonoBehaviour
     public Transform head;
     public Transform leftHand;
     public Transform rightHand;
-    public Transform body;
 
     public Animator leftHandAnimator;
     public Animator rightHandAnimator;
@@ -20,7 +19,6 @@ public class NetworkPlayer : MonoBehaviour
     private Transform headRig;
     private Transform leftHandRig;
     private Transform rightHandRig;
-    private Transform bodyRig;
     void Start()
     {
         photonView = GetComponent<PhotonView>();
@@ -33,7 +31,14 @@ public class NetworkPlayer : MonoBehaviour
         {
             foreach(var item in GetComponentsInChildren<Renderer>())
             {
-                item.enabled = false;
+                if (item.CompareTag("Head"))
+                {
+                    item.enabled = true;
+                }
+                else
+                {
+                    item.enabled = false;
+                }
             }
         }
     }
@@ -44,7 +49,6 @@ public class NetworkPlayer : MonoBehaviour
             MapPosition(head,headRig);
             MapPosition(leftHand, leftHandRig);
             MapPosition(rightHand, rightHandRig);
-            MapPosition(body, headRig);
 
             UpdateHandAnimation(InputDevices.GetDeviceAtXRNode(XRNode.LeftHand), leftHandAnimator);
             UpdateHandAnimation(InputDevices.GetDeviceAtXRNode(XRNode.RightHand), rightHandAnimator);
