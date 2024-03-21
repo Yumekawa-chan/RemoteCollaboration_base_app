@@ -19,6 +19,7 @@ public class NetworkPlayer : MonoBehaviour
     private Transform headRig;
     private Transform leftHandRig;
     private Transform rightHandRig;
+
     void Start()
     {
         photonView = GetComponent<PhotonView>();
@@ -27,9 +28,9 @@ public class NetworkPlayer : MonoBehaviour
         leftHandRig = rig.transform.Find("Camera Offset/LeftHand Controller");
         rightHandRig = rig.transform.Find("Camera Offset/RightHand Controller");
 
-        if(photonView.IsMine)
+        if (photonView.IsMine)
         {
-            foreach(var item in GetComponentsInChildren<Renderer>())
+            foreach (var item in GetComponentsInChildren<Renderer>())
             {
                 if (item.CompareTag("Head"))
                 {
@@ -42,41 +43,68 @@ public class NetworkPlayer : MonoBehaviour
             }
         }
     }
+
     void Update()
     {
-        if(photonView.IsMine)
+        if (photonView.IsMine)
         {
-            MapPosition(head,headRig);
+            MapPosition(head, headRig);
             MapPosition(leftHand, leftHandRig);
             MapPosition(rightHand, rightHandRig);
 
             UpdateHandAnimation(InputDevices.GetDeviceAtXRNode(XRNode.LeftHand), leftHandAnimator);
             UpdateHandAnimation(InputDevices.GetDeviceAtXRNode(XRNode.RightHand), rightHandAnimator);
-
         }
     }
-    void UpdateHandAnimation(InputDevice targetDevice,Animator handAnimator)
+
+    void UpdateHandAnimation(InputDevice targetDevice, Animator handAnimator)
     {
-        if(targetDevice.TryGetFeatureValue(CommonUsages.trigger, out float triggerValue))
+        if (handAnimator == null)
+            return;
+
+        if (targetDevice.TryGetFeatureValue(CommonUsages.trigger, out float flexValue))
         {
-            handAnimator.SetFloat("Trigger", triggerValue);
+            handAnimator.SetFloat("Flex", flexValue);
         }
         else
         {
-            handAnimator.SetFloat("Trigger", 0);
+            handAnimator.SetFloat("Flex", 0);
         }
 
-        if (targetDevice.TryGetFeatureValue(CommonUsages.grip, out float gripValue))
+        if (targetDevice.TryGetFeatureValue(CommonUsages.grip, out float pinchValue))
         {
-            handAnimator.SetFloat("Grip", gripValue);
+            handAnimator.SetFloat("Pinch", pinchValue);
         }
         else
         {
-            handAnimator.SetFloat("Grip", 0);
+            handAnimator.SetFloat("Pinch", 0);
+        }
+
+        var handPose = DeterminePose(targetDevice, flexValue, pinchValue);
+        handAnimator.SetInteger("Pose", handPose);
+    }
+
+    int DeterminePose(InputDevice targetDevice, float flexValue, float pinchValue)
+    {
+        if (flexValue > 0.5f && pinchValue > 0.5f)
+        {
+            return 1;
+        }
+        else if (flexValue > 0.5f)
+        {
+            return 2;
+        }
+        else if (pinchValue > 0.5f)
+        {
+            return 3;
+        }
+        else
+        {
+            return 0;
         }
     }
-    
-    void MapPosition(Transform target,Transform rigTransform)
+
+    void MapPosition(Transform target, Transform rigTransform)
     {
         target.position = rigTransform.position;
         target.rotation = rigTransform.rotation;
