@@ -3,7 +3,8 @@ using Photon.Pun;
 
 public class ToggleObject : MonoBehaviourPunCallbacks
 {
-    public GameObject eyeGaze;
+    [SerializeField]
+    private GameObject eyeGaze;
 
     void Update()
     {
@@ -11,11 +12,14 @@ public class ToggleObject : MonoBehaviourPunCallbacks
         {
             if (OVRInput.GetDown(OVRInput.Button.One))
             {
-                if (eyeGaze != null)
-                {
-                    eyeGaze.SetActive(!eyeGaze.activeSelf);
-                }
+                photonView.RPC("ToggleEyeGaze", RpcTarget.All, !eyeGaze.activeSelf);
             }
         }
+    }
+
+    [PunRPC]
+    void ToggleEyeGaze(bool state)
+    {
+        eyeGaze.SetActive(state);
     }
 }
