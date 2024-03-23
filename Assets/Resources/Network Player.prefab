@@ -480,6 +480,7 @@ GameObject:
   - component: {fileID: 7438910303661607061}
   - component: {fileID: 8334891439694112832}
   - component: {fileID: 6078870042824658271}
+  - component: {fileID: 8518579326966193913}
   m_Layer: 0
   m_Name: Network Player
   m_TagString: Untagged
@@ -526,10 +527,10 @@ MonoBehaviour:
   observableSearch: 2
   ObservedComponents:
   - {fileID: 6593418564356557533}
-  - {fileID: 594061176052057400}
   - {fileID: 6895206340215996688}
-  - {fileID: 7170375681515957083}
+  - {fileID: 594061176052057400}
   - {fileID: 2452816182732466028}
+  - {fileID: 7170375681515957083}
   - {fileID: 3356832310632840458}
   sceneViewId: 0
   InstantiationId: 0
@@ -696,6 +697,19 @@ MonoBehaviour:
   bodyHeightOffset: 0.3
   minimumBodyHeight: 0.5
   maxHorizontalDistance: 0.2
+--- !u!114 &8518579326966193913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6373683761261672293}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6eb77fba14a41c74391cb9468df53cfa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eyeGaze: {fileID: 2162580410146739734}
 --- !u!1 &6963787649570932843
 GameObject:
   m_ObjectHideFlags: 0
