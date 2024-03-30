@@ -5,6 +5,9 @@ public class ToggleObject : MonoBehaviourPunCallbacks
 {
     [SerializeField]
     private GameObject eyeGaze;
+    [SerializeField]
+
+    private GameObject panel;
 
     void Update()
     {
@@ -14,6 +17,10 @@ public class ToggleObject : MonoBehaviourPunCallbacks
             {
                 photonView.RPC("ToggleEyeGaze", RpcTarget.All, !eyeGaze.activeSelf);
             }
+            if (OVRInput.GetDown(OVRInput.Button.Two))
+            {
+                photonView.RPC("TogglePanel", RpcTarget.All, !panel.activeSelf);
+            }
         }
     }
 
@@ -21,5 +28,10 @@ public class ToggleObject : MonoBehaviourPunCallbacks
     void ToggleEyeGaze(bool state)
     {
         eyeGaze.SetActive(state);
+    }
+    [PunRPC]
+    void TogglePanel(bool state)
+    {
+        panel.SetActive(state);
     }
 }
