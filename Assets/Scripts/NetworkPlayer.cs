@@ -60,10 +60,9 @@ public class NetworkPlayer : MonoBehaviour
     }
 
     void UpdateHandAnimation(InputDevice targetDevice, Animator handAnimator)
+{
+    if (photonView.IsMine)
     {
-        if (handAnimator == null)
-            return;
-
         if (targetDevice.TryGetFeatureValue(CommonUsages.trigger, out float flexValue))
         {
             handAnimator.SetFloat("Flex", flexValue);
@@ -85,6 +84,8 @@ public class NetworkPlayer : MonoBehaviour
         var handPose = DeterminePose(targetDevice, flexValue, pinchValue);
         handAnimator.SetInteger("Pose", handPose);
     }
+}
+
 
     int DeterminePose(InputDevice targetDevice, float flexValue, float pinchValue)
     {
