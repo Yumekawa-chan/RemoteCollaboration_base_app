@@ -43,6 +43,14 @@ public class NetworkPlayer : MonoBehaviour
                 }
             }
         }
+        if (!photonView.IsMine)
+    {
+        Panel.gameObject.SetActive(false);
+    }
+    else
+    {
+        Camera.main.cullingMask |= 1 << LayerMask.NameToLayer("panel");
+    }
     }
 
     void Update()
