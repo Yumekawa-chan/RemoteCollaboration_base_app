@@ -13,6 +13,8 @@ public class NetworkPlayer : MonoBehaviour
     public Transform rightHand;
     public Transform Panel;
 
+    private bool panelFlug;
+
     public Animator leftHandAnimator;
     public Animator rightHandAnimator;
     private PhotonView photonView;
@@ -55,12 +57,26 @@ public class NetworkPlayer : MonoBehaviour
 
     void Update()
     {
-        if (photonView.IsMine)
+        if (OVRInput.GetDown(OVRInput.Button.One))
+        {
+            panelFlug = !panelFlug;
+        }
+        if (photonView.IsMine && panelFlug == false)
         {
             MapPosition(head, headRig);
             MapPosition(leftHand, leftHandRig);
             MapPosition(rightHand, rightHandRig);
             MapPosition(Panel, leftHandRig);
+
+            UpdateHandAnimation(InputDevices.GetDeviceAtXRNode(XRNode.LeftHand), leftHandAnimator);
+            UpdateHandAnimation(InputDevices.GetDeviceAtXRNode(XRNode.RightHand), rightHandAnimator);
+        }
+
+        if (photonView.IsMine && panelFlug == true)
+        {
+            MapPosition(head, headRig);
+            MapPosition(leftHand, leftHandRig);
+            MapPosition(rightHand, rightHandRig);
 
             UpdateHandAnimation(InputDevices.GetDeviceAtXRNode(XRNode.LeftHand), leftHandAnimator);
             UpdateHandAnimation(InputDevices.GetDeviceAtXRNode(XRNode.RightHand), rightHandAnimator);
