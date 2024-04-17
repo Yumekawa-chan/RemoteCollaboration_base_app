@@ -312,7 +312,7 @@ GameObject:
   - component: {fileID: 86298543}
   - component: {fileID: 86298545}
   - component: {fileID: 86298544}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Particle System
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5815,7 +5815,7 @@ GameObject:
   - component: {fileID: 652806185}
   - component: {fileID: 652806184}
   - component: {fileID: 652806191}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
