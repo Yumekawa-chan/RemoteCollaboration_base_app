@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Head
   - rightHand
+  - VisionPanel
   layers:
   - Default
   - TransparentFX

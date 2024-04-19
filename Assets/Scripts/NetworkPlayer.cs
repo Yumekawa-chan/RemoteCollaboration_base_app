@@ -35,7 +35,7 @@ public class NetworkPlayer : MonoBehaviour
         {
             foreach (var item in GetComponentsInChildren<Renderer>())
             {
-                if (item.CompareTag("Head"))
+                if (item.CompareTag("Head") || item.CompareTag("VisionPanel"))
                 {
                     item.enabled = true;
                 }
@@ -46,13 +46,13 @@ public class NetworkPlayer : MonoBehaviour
             }
         }
         if (!photonView.IsMine)
-    {
-        Panel.gameObject.SetActive(false);
-    }
-    else
-    {
-        Camera.main.cullingMask |= 1 << LayerMask.NameToLayer("panel");
-    }
+        {
+            Panel.gameObject.SetActive(false);
+        }
+        else
+        {
+            Camera.main.cullingMask |= 1 << LayerMask.NameToLayer("panel");
+        }
     }
 
     void Update()
@@ -84,31 +84,31 @@ public class NetworkPlayer : MonoBehaviour
     }
 
     void UpdateHandAnimation(InputDevice targetDevice, Animator handAnimator)
-{
-    if (photonView.IsMine)
     {
-        if (targetDevice.TryGetFeatureValue(CommonUsages.trigger, out float flexValue))
+        if (photonView.IsMine)
         {
-            handAnimator.SetFloat("Flex", flexValue);
-        }
-        else
-        {
-            handAnimator.SetFloat("Flex", 0);
-        }
+            if (targetDevice.TryGetFeatureValue(CommonUsages.trigger, out float flexValue))
+            {
+                handAnimator.SetFloat("Flex", flexValue);
+            }
+            else
+            {
+                handAnimator.SetFloat("Flex", 0);
+            }
 
-        if (targetDevice.TryGetFeatureValue(CommonUsages.grip, out float pinchValue))
-        {
-            handAnimator.SetFloat("Pinch", pinchValue);
-        }
-        else
-        {
-            handAnimator.SetFloat("Pinch", 0);
-        }
+            if (targetDevice.TryGetFeatureValue(CommonUsages.grip, out float pinchValue))
+            {
+                handAnimator.SetFloat("Pinch", pinchValue);
+            }
+            else
+            {
+                handAnimator.SetFloat("Pinch", 0);
+            }
 
-        var handPose = DeterminePose(targetDevice, flexValue, pinchValue);
-        handAnimator.SetInteger("Pose", handPose);
+            var handPose = DeterminePose(targetDevice, flexValue, pinchValue);
+            handAnimator.SetInteger("Pose", handPose);
+        }
     }
-}
 
 
     int DeterminePose(InputDevice targetDevice, float flexValue, float pinchValue)
