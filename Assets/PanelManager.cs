@@ -12,6 +12,7 @@ public class PanelManager : MonoBehaviour
         bool triggerNotPressed = !OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch);
 
         // 指さしでパネル上のオブジェクトに触れたときに発火
+        // このifの中には問題なく入る
         if (gripHeld && triggerNotPressed)
         {
             InteractWithRenderTexture();
@@ -20,8 +21,7 @@ public class PanelManager : MonoBehaviour
     public void InteractWithRenderTexture() // パネル上のオブジェクトに触れたときの処理
     {
         // カメラを基準にViewPortからレイを生成
-        Ray ray = displayRenderCamera.ViewportPointToRay(GetLocalHitPoint().position);
-        Debug.DrawRay(ray.origin, ray.direction * 10, Color.red, 1.0f);
+        Ray ray = displayRenderCamera.ViewportPointToRay(GetViewPoint(GetLocalHitPoint().position));
 
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, 10.0f, interactableLayers))
