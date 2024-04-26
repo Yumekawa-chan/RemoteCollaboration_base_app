@@ -38,7 +38,7 @@ public class PanelManager : MonoBehaviour
 
     }
 
-    public Transform GetLocalHitPoint() // パネル上のオブジェクトに触れたときのローカル座標を取得
+    public Vector3 GetLocalHitPoint() // パネル上のオブジェクトに触れたときのローカル座標を取得
     {
         Vector3 controllerPosition = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
         Vector3 screenPoint = displayRenderCamera.WorldToScreenPoint(controllerPosition);
@@ -46,9 +46,9 @@ public class PanelManager : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, interactableLayers))
         {
-            return hit.transform;
+            return displayGameObject.transform.InverseTransformPoint(hit.point);
         }
-        return null;
+        return Vector3.zero;
     }
 
 
