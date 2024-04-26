@@ -21,15 +21,18 @@ public class PanelManager : MonoBehaviour
     public void InteractWithRenderTexture() // パネル上のオブジェクトに触れたときの処理
     {
         // カメラを基準にViewPortからレイを生成
-        Ray ray = displayRenderCamera.ViewportPointToRay(GetViewPoint(GetLocalHitPoint().position));
-
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, 10.0f, interactableLayers))
+        Vector3 localHitPoint = GetLocalHitPoint().position;
+        if (localHitPoint != Vector3.zero)
         {
-            var particleSystem = hit.collider.gameObject.GetComponent<ParticleSystem>();
-            if (particleSystem != null)
+            Ray ray = displayRenderCamera.ViewportPointToRay(GetViewPoint(localHitPoint));
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, 10.0f, interactableLayers))
             {
-                particleSystem.Play();
+                var particleSystem = hit.collider.gameObject.GetComponent<ParticleSystem>();
+                if (particleSystem != null)
+                {
+                    particleSystem.Play();
+                }
             }
         }
 
