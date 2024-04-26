@@ -21,6 +21,8 @@ public class PanelManager : MonoBehaviour
     {
         // カメラを基準にViewPortからレイを生成
         Ray ray = displayRenderCamera.ViewportPointToRay(GetLocalHitPoint().position);
+        Debug.DrawRay(ray.origin, ray.direction * 10, Color.red, 1.0f);
+
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, 10.0f, interactableLayers))
         {
