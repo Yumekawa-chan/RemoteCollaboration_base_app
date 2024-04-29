@@ -47,6 +47,8 @@ public class PanelManager : MonoBehaviourPun
         {
             x = (localHitPoint.x + (displayGameObjectSize.x / 2)) / displayGameObjectSize.x,
             y = (localHitPoint.y + (displayGameObjectSize.y / 2)) / displayGameObjectSize.y,
+            // x = localHitPoint.x / displayGameObjectSize.x,
+            // y = localHitPoint.y / displayGameObjectSize.y,
         };
 
         // カメラを基準にViewportからのレイを生成
@@ -58,6 +60,7 @@ public class PanelManager : MonoBehaviourPun
         GameObject Cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         Cube.transform.position = point;
         Cube.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+        Destroy(Cube, 0.1f);
 
         if (Physics.Raycast(ray, out hit, 2.0f))
         {
