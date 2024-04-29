@@ -120,9 +120,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayRenderCamera: {fileID: 6180343134427626264}
   displayGameObject: {fileID: 649076522360349324}
-  interactableLayers:
-    serializedVersion: 2
-    m_Bits: 128
 --- !u!1 &1920094763411201102
 GameObject:
   m_ObjectHideFlags: 0
@@ -752,15 +749,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 422740, guid: ba1fa4a8c66106b4988c88fe4b8e8502, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.15
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 422740, guid: ba1fa4a8c66106b4988c88fe4b8e8502, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.15
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 422740, guid: ba1fa4a8c66106b4988c88fe4b8e8502, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.15
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 422740, guid: ba1fa4a8c66106b4988c88fe4b8e8502, type: 3}
       propertyPath: m_LocalPosition.x
