@@ -1,5 +1,6 @@
 using UnityEngine;
 using Photon.Pun;
+using ExitGames.Client.Photon.StructWrapping;
 
 public class PanelManager : MonoBehaviourPun
 {
@@ -10,22 +11,9 @@ public class PanelManager : MonoBehaviourPun
 
     void Start()
     {
-        PhotonView[] allPhotonViews = FindObjectsOfType<PhotonView>();
-
-        foreach (PhotonView view in allPhotonViews)
-        {
-            if (!view.IsMine && view.Owner != null) // このPhotonViewがローカルプレイヤーのものでないことを確認
-            {
-                // プレイヤーのHeadの下にあるCameraを探す
-                Camera foundCamera = view.gameObject.transform.Find("Head/ViewCamera")?.GetComponent<Camera>();
-                if (foundCamera != null)
-                {
-                    displayRenderCamera = foundCamera;
-                    break;
-                }
-            }
-        }
+        InitializeCameraAndPanel();
     }
+
     void Update()
     {
         bool gripHeld = OVRInput.Get(OVRInput.Button.PrimaryHandTrigger, OVRInput.Controller.RTouch);
@@ -45,10 +33,8 @@ public class PanelManager : MonoBehaviourPun
         // Viewportを計算
         var viewportPoint = new Vector3()
         {
-            x = (localHitPoint.x + (displayGameObjectSize.x / 2)) / displayGameObjectSize.x,
-            y = (localHitPoint.y + (displayGameObjectSize.y / 2)) / displayGameObjectSize.y,
-            // x = localHitPoint.x / displayGameObjectSize.x,
-            // y = localHitPoint.y / displayGameObjectSize.y,
+            x = (localHitPoint.x + displayGameObjectSize.x / 2) / displayGameObjectSize.x,
+            y = (localHitPoint.y + displayGameObjectSize.y / 2) / displayGameObjectSize.y,
         };
 
         // カメラを基準にViewportからのレイを生成
@@ -60,9 +46,10 @@ public class PanelManager : MonoBehaviourPun
         GameObject Cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         Cube.transform.position = point;
         Cube.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-        Destroy(Cube, 0.1f);
+        Cube.GetComponent<Renderer>().material.color = Color.red;
+        Destroy(Cube, 0.2f);
 
-        if (Physics.Raycast(ray, out hit, 2.0f))
+        if (Physics.Raycast(ray, out hit, 10.0f))
         {
             // 検出した物体のパーティクルシステムを発火
             var cubeManager = hit.transform.GetComponent<CubeManager>();
@@ -73,6 +60,44 @@ public class PanelManager : MonoBehaviourPun
         }
 
     }
+    private void InitializeCameraAndPanel()
+    {
+        PhotonView[] allPhotonViews = FindObjectsOfType<PhotonView>();
+
+        foreach (PhotonView view in allPhotonViews)
+        {
+            if (view.Owner != null)
+            {
+                if (view.Owner.ActorNumber != PhotonNetwork.LocalPlayer.ActorNumber)
+                {
+                    // 他のプレイヤーのカメラを見つける
+                    Camera foundCamera = view.gameObject.transform.Find("Head/ViewCamera")?.GetComponent<Camera>();
+                    if (foundCamera != null)
+                    {
+                        displayRenderCamera = foundCamera;
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Head/ViewCamera not found on {view.Owner.NickName}");
+                    }
+                }
+                else
+                {
+                    // 自分のパネルを見つける
+                    GameObject panel = view.gameObject.transform.Find("Panel/Panel")?.gameObject;
+                    if (panel != null)
+                    {
+                        displayGameObject = panel;
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Panel/Panel not found on my object");
+                    }
+                }
+            }
+        }
+    }
+
 
     private Vector3 getlocalHitPoint() // パネル上の触れた部分のローカル座標を取得
     {
