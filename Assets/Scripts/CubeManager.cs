@@ -1,15 +1,15 @@
 using System.Collections;
 using UnityEngine;
+using Photon.Pun;
 
-public class CubeManager : MonoBehaviour
+public class CubeManager : MonoBehaviourPun
 {
-    private new ParticleSystem particleSystem;
+    private ParticleSystem myParticleSystem;
 
-    // Start is called before the first frame update
     void Start()
     {
-        particleSystem = GetComponent<ParticleSystem>();
-        if (particleSystem == null)
+        myParticleSystem = GetComponent<ParticleSystem>();
+        if (myParticleSystem == null)
         {
             Debug.LogError("No ParticleSystem found on the GameObject.");
         }
@@ -17,17 +17,23 @@ public class CubeManager : MonoBehaviour
 
     public void StartParticleSystem()
     {
-        if (particleSystem.isPlaying)
+        if (myParticleSystem.isPlaying)
         {
-            particleSystem.Stop();
+            myParticleSystem.Stop();
         }
+        photonView.RPC("ActivateParticleSystemRPC", RpcTarget.All);
+    }
+
+    [PunRPC]
+    private void ActivateParticleSystemRPC()
+    {
         StartCoroutine(ActivateParticleSystem());
     }
 
     private IEnumerator ActivateParticleSystem()
     {
-        particleSystem.Play();
+        myParticleSystem.Play();
         yield return new WaitForSeconds(5);
-        particleSystem.Stop();
+        myParticleSystem.Stop();
     }
 }
