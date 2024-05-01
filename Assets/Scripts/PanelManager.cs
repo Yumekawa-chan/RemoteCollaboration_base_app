@@ -1,7 +1,5 @@
 using UnityEngine;
 using Photon.Pun;
-using ExitGames.Client.Photon.StructWrapping;
-using System;
 
 public class PanelManager : MonoBehaviourPun
 {
@@ -29,15 +27,24 @@ public class PanelManager : MonoBehaviourPun
 
     private void InteractWithRenderTexture() // メイン処理
     {
-        Vector3 localHitPoint = getlocalHitPoint();
+        Vector3 localHitPoint = getLocalHitPoint();
         var displayGameObjectSize = displayGameObject.GetComponent<MeshRenderer>().bounds.size;
 
         // Viewportを計算
         var viewportPoint = new Vector3()
         {
-            x = (localHitPoint.x + displayGameObjectSize.x / 2) / displayGameObjectSize.x,
-            y = (localHitPoint.y + displayGameObjectSize.y / 2) / displayGameObjectSize.y,
-        };
+            x = (localHitPoint.x / displayGameObjectSize.x) + 0.5f,  // 中心を0.5にする
+            y = (localHitPoint.y / displayGameObjectSize.y) + 0.5f,  // 中心を0.5にする
+        }; // 値域は0~1 絶対値なんかとろうとするなよ
+
+        // 三角関数でカメラと物体のなす角から計算できるんじゃね？
+
+        // 以下のようにも書ける
+        // var viewportPoint = new Vector3()
+        // {
+        //     x = (localHitPoint.x + (displayGameObjectSize.x / 2)) / displayGameObjectSize.x,
+        //     y = (localHitPoint.y + (displayGameObjectSize.y / 2)) / displayGameObjectSize.y,
+        // };
 
         // カメラを基準にViewportからのレイを生成
         Ray ray = displayRenderCamera.ViewportPointToRay(viewportPoint);
@@ -60,8 +67,9 @@ public class PanelManager : MonoBehaviourPun
                 cubeManager.StartParticleSystem();
             }
         }
-
     }
+
+
     private void InitializeCameraAndPanel()
     {
         PhotonView[] allPhotonViews = FindObjectsOfType<PhotonView>();
@@ -78,10 +86,6 @@ public class PanelManager : MonoBehaviourPun
                     {
                         displayRenderCamera = camera.GetComponent<Camera>();
                         Debug.Log(displayRenderCamera);
-                    }
-                    else
-                    {
-                        Debug.LogWarning("Head/ViewCamera not found on other player's object");
                     }
                 }
                 else if (view.Owner.ActorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
@@ -101,7 +105,7 @@ public class PanelManager : MonoBehaviourPun
     }
 
 
-    private Vector3 getlocalHitPoint() // パネル上の触れた部分のローカル座標を取得
+    private Vector3 getLocalHitPoint() // パネル上の触れた部分のローカル座標を取得
     {
         Vector3 localHitPoint = colliderPoint;
         if (localHitPoint != Vector3.zero)
