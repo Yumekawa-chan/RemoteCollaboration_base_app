@@ -1,11 +1,12 @@
 using UnityEngine;
 using Photon.Pun;
 using ExitGames.Client.Photon.StructWrapping;
+using System;
 
 public class PanelManager : MonoBehaviourPun
 {
     public Camera displayRenderCamera; // RenderTextureに画像を書き込んでいるカメラ
-    public GameObject displayGameObject; // RenderTextureを表示しているGameObject
+    private GameObject displayGameObject; // RenderTextureを表示しているGameObject
     private bool collisionStatus = false;
     private Vector3 colliderPoint = Vector3.zero;
 
@@ -23,6 +24,7 @@ public class PanelManager : MonoBehaviourPun
         {
             InteractWithRenderTexture();
         }
+        InitializeCameraAndPanel();
     }
 
     private void InteractWithRenderTexture() // メイン処理
@@ -71,19 +73,19 @@ public class PanelManager : MonoBehaviourPun
                 if (view.Owner.ActorNumber != PhotonNetwork.LocalPlayer.ActorNumber)
                 {
                     // 他のプレイヤーのカメラを見つける
-                    Camera foundCamera = view.gameObject.transform.Find("Head/ViewCamera")?.GetComponent<Camera>();
-                    if (foundCamera != null)
+                    GameObject camera = view.gameObject.transform.Find("Head/ViewCamera")?.gameObject;
+                    if (camera != null)
                     {
-                        displayRenderCamera = foundCamera;
+                        displayRenderCamera = camera.GetComponent<Camera>();
+                        Debug.Log(displayRenderCamera);
                     }
                     else
                     {
-                        Debug.LogWarning($"Head/ViewCamera not found on {view.Owner.NickName}");
+                        Debug.LogWarning("Head/ViewCamera not found on other player's object");
                     }
                 }
-                else
+                else if (view.Owner.ActorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
                 {
-                    // 自分のパネルを見つける
                     GameObject panel = view.gameObject.transform.Find("Panel/Panel")?.gameObject;
                     if (panel != null)
                     {
