@@ -28,7 +28,8 @@ public class PanelManager : MonoBehaviourPun
     private void InteractWithRenderTexture() // メイン処理
     {
         Vector3 localHitPoint = getLocalHitPoint();
-        var displayGameObjectSize = displayGameObject.GetComponent<MeshRenderer>().bounds.size;
+        // var displayGameObjectSize = displayGameObject.GetComponent<MeshRenderer>().bounds.size;
+        Vector3 displayGameObjectSize = new Vector3(0.55f, 0.38f, 0.001f);
 
         // Viewportを計算
         var viewportPoint = new Vector3()
@@ -56,7 +57,7 @@ public class PanelManager : MonoBehaviourPun
         Cube.transform.position = point;
         Cube.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
         Cube.GetComponent<Renderer>().material.color = Color.red;
-        Destroy(Cube, 0.2f);
+        Destroy(Cube, 0.1f);
 
         if (Physics.Raycast(ray, out hit, 10.0f))
         {
