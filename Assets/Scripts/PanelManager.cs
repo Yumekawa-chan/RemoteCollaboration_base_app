@@ -25,52 +25,6 @@ public class PanelManager : MonoBehaviourPun
         InitializeCameraAndPanel();
     }
 
-    private void InteractWithRenderTexture() // メイン処理
-    {
-        Vector3 localHitPoint = getLocalHitPoint();
-        // var displayGameObjectSize = displayGameObject.GetComponent<MeshRenderer>().bounds.size;
-        Vector3 displayGameObjectSize = new Vector3(0.55f, 0.38f, 0.001f);
-
-        // Viewportを計算
-        var viewportPoint = new Vector3()
-        {
-            x = (localHitPoint.x / displayGameObjectSize.x) + 0.5f,  // 中心を0.5にする
-            y = (localHitPoint.y / displayGameObjectSize.y) + 0.5f,  // 中心を0.5にする
-        }; // 値域は0~1 絶対値なんかとろうとするなよ
-
-        // 三角関数でカメラと物体のなす角から計算できるんじゃね？
-
-        // 以下のようにも書ける
-        // var viewportPoint = new Vector3()
-        // {
-        //     x = (localHitPoint.x + (displayGameObjectSize.x / 2)) / displayGameObjectSize.x,
-        //     y = (localHitPoint.y + (displayGameObjectSize.y / 2)) / displayGameObjectSize.y,
-        // };
-
-        // カメラを基準にViewportからのレイを生成
-        Ray ray = displayRenderCamera.ViewportPointToRay(viewportPoint);
-        RaycastHit hit;
-
-        // hitした場所の座標を取得 ※デバッグ用  
-        Vector3 point = ray.GetPoint(2.0f);
-        GameObject Cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        Cube.transform.position = point;
-        Cube.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-        Cube.GetComponent<Renderer>().material.color = Color.red;
-        Destroy(Cube, 0.1f);
-
-        if (Physics.Raycast(ray, out hit, 10.0f))
-        {
-            // 検出した物体のパーティクルシステムを発火
-            var cubeManager = hit.transform.GetComponent<CubeManager>();
-            if (cubeManager != null)
-            {
-                cubeManager.StartParticleSystem();
-            }
-        }
-    }
-
-
     private void InitializeCameraAndPanel()
     {
         PhotonView[] allPhotonViews = FindObjectsOfType<PhotonView>();
@@ -105,6 +59,46 @@ public class PanelManager : MonoBehaviourPun
         }
     }
 
+    private void InteractWithRenderTexture() // メイン処理
+    {
+        Vector3 localHitPoint = getLocalHitPoint();
+        // var displayGameObjectSize = displayGameObject.GetComponent<MeshRenderer>().bounds.size;
+        Vector3 displayGameObjectSize = new Vector3(0.55f, 0.38f, 0.001f);
+
+        // Viewportを計算
+        var viewportPoint = new Vector3()
+        {
+            x = (localHitPoint.x / displayGameObjectSize.x) + 0.5f,  // 中心を0.5にする
+            y = (localHitPoint.y / displayGameObjectSize.y) + 0.5f,  // 中心を0.5にする
+        }; // 値域は0~1
+
+        float angleBetween = Vector3.Angle(displayRenderCamera.transform.forward, displayGameObject.transform.forward);
+
+        // ここで角度に応じてx座標を補正
+        viewportPoint.x = AdjustedCoordinate(angleBetween, viewportPoint.x);
+
+        // カメラを基準にViewportからのレイを生成
+        Ray ray = displayRenderCamera.ViewportPointToRay(viewportPoint);
+        RaycastHit hit;
+
+        // hitした場所の座標を取得 ※デバッグ用  
+        // Vector3 point = ray.GetPoint(2.0f);
+        // GameObject Cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        // Cube.transform.position = point;
+        // Cube.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+        // Cube.GetComponent<Renderer>().material.color = Color.red;
+        // Destroy(Cube, 0.1f);
+
+        if (Physics.Raycast(ray, out hit, 10.0f))
+        {
+            // 検出した物体のパーティクルシステムを発火
+            var cubeManager = hit.transform.GetComponent<CubeManager>();
+            if (cubeManager != null)
+            {
+                cubeManager.StartParticleSystem();
+            }
+        }
+    }
 
     private Vector3 getLocalHitPoint() // パネル上の触れた部分のローカル座標を取得
     {
@@ -116,6 +110,16 @@ public class PanelManager : MonoBehaviourPun
         return Vector3.zero;
     }
 
+    public static float AdjustedCoordinate(float theta, float x)
+    {
+        if (theta == 180.0f) return 1.0f - x;
+        if (theta == 0.0f) return x;
+
+        float adjustmentFactor = Mathf.Cos(theta * Mathf.Deg2Rad);
+        float adjustedX = (1 - adjustmentFactor) * (1 - x) + adjustmentFactor * x;
+        return adjustedX;
+    }
+
 
     void OnTriggerEnter(Collider other)
     {
@@ -125,6 +129,7 @@ public class PanelManager : MonoBehaviourPun
             colliderPoint = other.ClosestPointOnBounds(transform.position);
         }
     }
+
     void OnTriggerExit(Collider other)
     {
         if (other.gameObject.tag == "rightHand")
