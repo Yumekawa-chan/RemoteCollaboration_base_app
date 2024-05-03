@@ -119,6 +119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   displayRenderCamera: {fileID: 6180343134427626264}
+  displayGameObject: {fileID: 0}
 --- !u!1 &1920094763411201102
 GameObject:
   m_ObjectHideFlags: 0
@@ -289,7 +290,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 95
+  field of view: 100
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
