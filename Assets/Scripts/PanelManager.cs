@@ -1,12 +1,11 @@
 using UnityEngine;
 using Photon.Pun;
-using UnityEngine.UI;
 
 public class PanelManager : MonoBehaviourPun
 {
-    public Camera displayRenderCamera; // Camera rendering the image to the RenderTexture
-    private RawImage displayGameObject; // Display panel as a RawImage
-    private Vector3? colliderPoint = null; // Nullable Vector3 to represent the collision point
+    public Camera displayRenderCamera; // RenderTextureに画像を書き込んでいるカメラ
+    private GameObject displayGameObject; // RenderTextureを表示しているGameObject
+    private Vector3? colliderPoint = null;
 
     void Start()
     {
@@ -18,12 +17,50 @@ public class PanelManager : MonoBehaviourPun
         bool gripHeld = OVRInput.Get(OVRInput.Button.PrimaryHandTrigger, OVRInput.Controller.RTouch);
         bool triggerNotPressed = !OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch);
 
-        if (gripHeld && triggerNotPressed && colliderPoint != null)
+        if (gripHeld && triggerNotPressed)
         {
             InteractWithRenderTexture();
         }
         InitializeCameraAndPanel();
     }
+
+    private void InteractWithRenderTexture() // メイン処理
+    {
+        if (colliderPoint == null) return; // パネルに触れていない場合は処理を終了
+
+        Vector3 localHitPoint = getLocalHitPoint();
+        var displayGameObjectSize = displayGameObject.GetComponent<MeshRenderer>().bounds.size;
+
+        // Viewportを計算
+        var viewportPoint = new Vector3()
+        {
+            x = (localHitPoint.x / displayGameObjectSize.x) + 0.5f,  // 中心を0.5にする
+            y = (localHitPoint.y / displayGameObjectSize.y) + 0.5f,  // 中心を0.5にする
+        }; // 値域は0~1 絶対値なんかとろうとするなよ
+
+        // カメラを基準にViewportからのレイを生成
+        Ray ray = displayRenderCamera.ViewportPointToRay(viewportPoint);
+        RaycastHit hit;
+
+        // hitした場所の座標を取得 ※デバッグ用  
+        Vector3 point = ray.GetPoint(2.0f);
+        GameObject Cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        Cube.transform.position = point;
+        Cube.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+        Cube.GetComponent<Renderer>().material.color = Color.red;
+        Destroy(Cube, 0.2f);
+
+        if (Physics.Raycast(ray, out hit, 10.0f))
+        {
+            // 検出した物体のパーティクルシステムを発火
+            var cubeManager = hit.transform.GetComponent<CubeManager>();
+            if (cubeManager != null)
+            {
+                cubeManager.StartParticleSystem();
+            }
+        }
+    }
+
 
     private void InitializeCameraAndPanel()
     {
@@ -35,6 +72,7 @@ public class PanelManager : MonoBehaviourPun
             {
                 if (view.Owner.ActorNumber != PhotonNetwork.LocalPlayer.ActorNumber)
                 {
+                    // 他のプレイヤーのカメラを見つける
                     GameObject camera = view.gameObject.transform.Find("Head/ViewCamera")?.gameObject;
                     if (camera != null)
                     {
@@ -47,7 +85,7 @@ public class PanelManager : MonoBehaviourPun
                     GameObject panel = view.gameObject.transform.Find("Panel/Panel")?.gameObject;
                     if (panel != null)
                     {
-                        displayGameObject = panel.GetComponent<RawImage>();
+                        displayGameObject = panel;
                     }
                     else
                     {
@@ -58,51 +96,28 @@ public class PanelManager : MonoBehaviourPun
         }
     }
 
-    private void InteractWithRenderTexture() // Main logic
+
+    private Vector3 getLocalHitPoint() // パネル上の触れた部分のローカル座標を取得
     {
-        if (colliderPoint == null) return;
-
-        Vector3 worldSpaceHitPoint = colliderPoint.Value;
-
-        Vector2 localHitPoint = displayGameObject.rectTransform.InverseTransformPoint(worldSpaceHitPoint);
-
-        var rect = displayGameObject.rectTransform.rect;
-        Vector2 textureCoord = localHitPoint - rect.min;
-        textureCoord.x *= displayGameObject.uvRect.width / rect.width;
-        textureCoord.y *= displayGameObject.uvRect.height / rect.height;
-        textureCoord += displayGameObject.uvRect.min;
-
-        Ray ray = displayRenderCamera.ViewportPointToRay(textureCoord);
-        // Making Cube for Debugging
-        Vector3 point = ray.GetPoint(2.0f);
-        GameObject Cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        Cube.transform.position = point;
-        Cube.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-        Cube.GetComponent<Renderer>().material.color = Color.red;
-        Destroy(Cube, 0.1f);
-
-        if (Physics.Raycast(ray, out var hit, 10.0f))
+        if (colliderPoint != Vector3.zero)
         {
-            if (hit.transform.TryGetComponent<CubeManager>(out var cubeManager))
-            {
-                cubeManager.StartParticleSystem();
-            }
+            return colliderPoint - displayGameObject.transform.position ?? Vector3.zero;
         }
+        return Vector3.zero;
     }
+
 
     void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("rightHand"))
         {
             var plane = new Plane(transform.forward, transform.position);
-
             colliderPoint = plane.ClosestPointOnPlane(other.bounds.center);
         }
     }
-
     void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("rightHand"))
+        if (other.gameObject.tag == "rightHand")
         {
             colliderPoint = null;
         }

@@ -119,7 +119,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   displayRenderCamera: {fileID: 6180343134427626264}
-  displayGameObject: {fileID: 0}
 --- !u!1 &1920094763411201102
 GameObject:
   m_ObjectHideFlags: 0
