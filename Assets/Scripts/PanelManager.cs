@@ -29,14 +29,14 @@ public class PanelManager : MonoBehaviourPun
         if (!colliderPoint.HasValue) return; // パネルに触れていない場合は処理を終了
 
         Vector3 localHitPoint = getLocalHitPoint();
-        var displayGameObjectSize = displayGameObject.GetComponent<MeshRenderer>().bounds.size;
+        var displayGameObjectSize = displayGameObject.transform.localScale; // パネルの大きさを取得 正しい値でした
 
         // Viewportを計算
         var viewportPoint = new Vector3()
         {
-            x = (localHitPoint.x / displayGameObjectSize.x) + 0.5f,  // 中心を0.5にする
-            y = (localHitPoint.y / displayGameObjectSize.y) + 0.5f,  // 中心を0.5にする
-        }; // 値域は0~1 絶対値なんかとろうとするなよ
+            x = (localHitPoint.x + (displayGameObjectSize.x / 2)) / displayGameObjectSize.x,
+            y = (localHitPoint.y + (displayGameObjectSize.y / 2)) / displayGameObjectSize.y,
+        };
 
         // カメラを基準にViewportからのレイを生成
         Ray ray = displayRenderCamera.ViewportPointToRay(viewportPoint);
@@ -96,12 +96,13 @@ public class PanelManager : MonoBehaviourPun
         }
     }
 
-
+    // 多分ここが問題．positionのみならず，rotationも考慮する必要があるかもしれない
+    // return displayGameObject.transform.InverseTransformPoint(colliderPoint.Value);で解決
     private Vector3 getLocalHitPoint() // パネル上の触れた部分のローカル座標を取得
     {
         if (colliderPoint != Vector3.zero)
         {
-            return colliderPoint - displayGameObject.transform.position ?? Vector3.zero;
+            return displayGameObject.transform.InverseTransformPoint(colliderPoint.Value);
         }
         return Vector3.zero;
     }
@@ -112,7 +113,7 @@ public class PanelManager : MonoBehaviourPun
         if (other.CompareTag("rightHand"))
         {
             var plane = new Plane(transform.forward, transform.position);
-            colliderPoint = plane.ClosestPointOnPlane(other.bounds.center);
+            colliderPoint = plane.ClosestPointOnPlane(other.transform.position);
         }
     }
     void OnTriggerExit(Collider other)
