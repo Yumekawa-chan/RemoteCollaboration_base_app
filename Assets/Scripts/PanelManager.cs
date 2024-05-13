@@ -26,7 +26,7 @@ public class PanelManager : MonoBehaviourPun
 
     private void InteractWithRenderTexture() // メイン処理
     {
-        if (colliderPoint == null) return; // パネルに触れていない場合は処理を終了
+        if (!colliderPoint.HasValue) return; // パネルに触れていない場合は処理を終了
 
         Vector3 localHitPoint = getLocalHitPoint();
         var displayGameObjectSize = displayGameObject.GetComponent<MeshRenderer>().bounds.size;
