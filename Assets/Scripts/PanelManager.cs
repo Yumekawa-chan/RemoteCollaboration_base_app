@@ -28,7 +28,7 @@ public class PanelManager : MonoBehaviourPun
     {
         if (!colliderPoint.HasValue) return; // パネルに触れていない場合は処理を終了
 
-        Vector3 localHitPoint = getLocalHitPoint();
+        Vector3 localHitPoint = displayGameObject.transform.InverseTransformPoint(colliderPoint.Value);
         var displayGameObjectSize = displayGameObject.transform.localScale; // パネルの大きさを取得 正しい値でした
 
         // Viewportを計算
@@ -95,18 +95,6 @@ public class PanelManager : MonoBehaviourPun
             }
         }
     }
-
-    // 多分ここが問題．positionのみならず，rotationも考慮する必要があるかもしれない
-    // return displayGameObject.transform.InverseTransformPoint(colliderPoint.Value);で解決
-    private Vector3 getLocalHitPoint() // パネル上の触れた部分のローカル座標を取得
-    {
-        if (colliderPoint != Vector3.zero)
-        {
-            return displayGameObject.transform.InverseTransformPoint(colliderPoint.Value);
-        }
-        return Vector3.zero;
-    }
-
 
     void OnTriggerEnter(Collider other)
     {
