@@ -1,12 +1,12 @@
 using UnityEngine;
 using Photon.Pun;
+using UnityEngine.UI;
 
 public class PanelManager : MonoBehaviourPun
 {
     public Camera displayRenderCamera; // RenderTextureに画像を書き込んでいるカメラ
-    private GameObject displayGameObject; // RenderTextureを表示しているGameObject
+    private RawImage displayGameObject; // RenderTextureを表示しているGameObject
     private Vector3? colliderPoint = null;
-
     void Start()
     {
         InitializeCameraAndPanel();
@@ -28,18 +28,17 @@ public class PanelManager : MonoBehaviourPun
     {
         if (!colliderPoint.HasValue) return; // パネルに触れていない場合は処理を終了
 
-        Vector3 localHitPoint = displayGameObject.transform.InverseTransformPoint(colliderPoint.Value);
-        var displayGameObjectSize = displayGameObject.transform.localScale; // パネルの大きさを取得 正しい値でした
+        Vector2 localHitPoint = displayGameObject.transform.InverseTransformPoint(colliderPoint.Value);
+        var rect = displayGameObject.rectTransform.rect;
+        Vector2 textureCoord = localHitPoint - rect.min;
+        textureCoord.x *= displayGameObject.uvRect.width / rect.width;
+        textureCoord.y *= displayGameObject.uvRect.height / rect.height;
+        textureCoord += displayGameObject.uvRect.min;
+        textureCoord = new Vector2(1 - textureCoord.x, 1 - textureCoord.y + 0.1f);
 
-        // Viewportを計算
-        var viewportPoint = new Vector3()
-        {
-            x = (localHitPoint.x + (displayGameObjectSize.x / 2)) / displayGameObjectSize.x,
-            y = (localHitPoint.y + (displayGameObjectSize.y / 2)) / displayGameObjectSize.y,
-        };
 
         // カメラを基準にViewportからのレイを生成
-        Ray ray = displayRenderCamera.ViewportPointToRay(viewportPoint);
+        Ray ray = displayRenderCamera.ViewportPointToRay(textureCoord);
         RaycastHit hit;
 
         // hitした場所の座標を取得 ※デバッグ用  
@@ -85,7 +84,7 @@ public class PanelManager : MonoBehaviourPun
                     GameObject panel = view.gameObject.transform.Find("Panel/Panel")?.gameObject;
                     if (panel != null)
                     {
-                        displayGameObject = panel;
+                        displayGameObject = panel.GetComponent<RawImage>(); // Explicitly cast panel to RawImage type
                     }
                     else
                     {
