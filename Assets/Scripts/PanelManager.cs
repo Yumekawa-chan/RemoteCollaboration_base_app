@@ -47,6 +47,8 @@ public class PanelManager : MonoBehaviourPun
             if (cubeManager != null)
             {
                 StartCoroutine(ActivateWithCooldown(cubeManager));
+                //右のコントローラーを振動させる
+                OVRInput.SetControllerVibration(0.1f, 0.1f, OVRInput.Controller.RTouch);
             }
         }
     }
