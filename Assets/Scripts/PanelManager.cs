@@ -47,8 +47,7 @@ public class PanelManager : MonoBehaviourPun
             if (cubeManager != null)
             {
                 StartCoroutine(ActivateWithCooldown(cubeManager));
-                //右のコントローラーを振動させる
-                OVRInput.SetControllerVibration(0.1f, 0.1f, OVRInput.Controller.RTouch);
+                StartCoroutine(Vibrate(duration: 0.2f, controller: OVRInput.Controller.RTouch));
             }
         }
     }
@@ -59,6 +58,15 @@ public class PanelManager : MonoBehaviourPun
         cubeManager.StartParticleSystem();
         yield return new WaitForSeconds(2f);
         isCooldown = false;
+    }
+
+    public static IEnumerator Vibrate(float duration = 0.1f, float frequency = 0.1f, float amplitude = 0.1f, OVRInput.Controller controller = OVRInput.Controller.Active)
+    {
+        OVRInput.SetControllerVibration(frequency, amplitude, controller);
+
+        yield return new WaitForSeconds(duration);
+
+        OVRInput.SetControllerVibration(0, 0, controller);
     }
 
     private void InitializeCameraAndPanel()
